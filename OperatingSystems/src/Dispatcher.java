@@ -10,7 +10,7 @@ public class Dispatcher implements Runnable {
         thread1 = new Thread(object);
 
         // thread1 created and is currently in the NEW state.
-        System.out.println("State of thread1 after creating it - " + thread1.getState());
+        thread1.getState();
         thread1.start();
 
         // thread1 moved to Runnable state

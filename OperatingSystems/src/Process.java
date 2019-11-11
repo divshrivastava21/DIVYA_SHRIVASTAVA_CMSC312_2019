@@ -1,157 +1,292 @@
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.io.FileNotFoundException;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.Scanner;
-import java.time.LocalDateTime;
+import java.util.Stack;
 
-import static java.time.LocalDateTime.*;
-///import java.
-
-enum State {
-
-    NEW, READY, WAITING, RUNNING, TERMINATED;
-}
-
-public class Process extends Scheduler {
+public class Process extends SJFScheduler {
 
 
     public static void main(Scanner in, int input, Scanner scan, int[] arr, Scanner scan2, int[] arr2, Scanner scan3,
                             int[] arr3, Scanner scan4, int[] arr4) throws FileNotFoundException {
-        //Scanner in = new Scanner(System.in);
 
         int j = 0;
         int pid = 5000;
+        //int totalMemoryMB = 4096; //KB = 4096000 --> 4096000000
+        int memoryNeeded = 0;
+        int memoryNeededKB = 0;
+        ArrayList<ArrayList<Integer>> framesAssignedWithProcess = new ArrayList<ArrayList<Integer>>();
+        ArrayList<Integer> addFrames = new ArrayList<>();
+        int totalFrames = 4096000/4000;
+        int frameSize = 4000;
+        int pageSizeKB = frameSize;
+        int pagesNeeded = 0; //(int) Math.ceil(memoryNeeded/pageSizeKB);
+        int pageTableMemory = (int) Math.floor(4096000/4000);
+        int[] pageTable = new int[pageTableMemory]; //1024 entries
+//      int totalMemoryKB = 4096000 - pageTableMemory;
+        int framesNeeded = 0;
+        Stack <Integer> frameSizeStack = new Stack<>();
         int[] processID = new int[input*4];
         int[] arrivalTimeInReady = new int[input*4];
         int[] burstTimeCPU = new int[input*4];
+        int[]kBurstTimeCPU = new int[input*4];
         int[] completionTime = new int[input*4];
         int[] turnAroundTimeDuration = new int[input*4];
         int[] waitingTime = new int[input*4];
-        SimpleDateFormat formatter = new SimpleDateFormat("HHmmss");
-        Date date = new Date();
+        int[] flag = new int[input*4];
+        int[] kBurst = new int[input*4];
+        int criticalSection = 0;
+        MutexLock lock = new MutexLock();
+
+
+        for (int i = 0; i <= totalFrames; i++) {
+            frameSizeStack.push(i);
+        }
 
         for (int i = 0; i < input; i++) {
+
             while (scan.hasNextLine()) {
-                //String line = scan.nextLine();
-                //System.out.println(line);
+
+                processID[j] = pid;
                 String word;
+                System.out.println("" + scan.hasNext());
+                word = scan.next();
 
-                    System.out.println("" + scan.hasNext());
-                    word = scan.next();
-                    //System.out.println(word);
-                    if (word.equals("CALCULATE") || word.equals("I/O")) {
-                        String number = scan.next();
-                        int numInt = Integer.parseInt(number);
-                        arr[i] = numInt + (int) (getRandomInt(numInt * (-0.4), numInt * (0.4)));
+                if (word.equals("CALCULATE") || word.equals("I/O")) {
+
+                    String number = scan.next();
+                    int numInt = Integer.parseInt(number);
+                    arr[i] = numInt + (int) (getRandomInt(numInt * (-0.4), numInt * (0.4)));
+
+                    if(word.equals("CALCULATE")) {
+                        criticalSection++;
+                        lock.acquire();
+                        lock.release();
                     }
+                }
+                if(word.equals("Memory:")) {
 
-                    scan.nextLine();
+                    String memoryNum = scan.next();
+                    System.out.println(memoryNum + "MB of memory has been processed");
+                    memoryNeeded = Integer.parseInt(memoryNum); //90 MB
+                    memoryNeededKB = memoryNeeded * 1000; //90000
+                    framesNeeded = (int) Math.ceil(memoryNeededKB/frameSize); //23
+                    pagesNeeded = (int) Math.ceil(memoryNeededKB/pageSizeKB);
+                    totalFrames = totalFrames - framesNeeded;
+
+                    if(!frameSizeStack.empty() && frameSizeStack.size() >= framesNeeded) { //AVAILABLE SPACE IN MEMORY
+
+                        for(int k = 0; k < framesNeeded; k++) {
+                            addFrames.add(frameSizeStack.pop()); //23 frames total
+                        }
+                        framesAssignedWithProcess.add(addFrames);
+                        System.out.println("For process ID " + pid + ", " + addFrames.size() + " frames " +
+                                "were added to memory.");
+                    }
+                    else{
+                        System.out.println("There is no space in memory for Process ID " + pid);
+                    }
+                }
+                scan.nextLine();
             }
-            processID[j] = pid; //5000
-            pid += 1; //5001
 
-            arrivalTimeInReady[i] = Integer.parseInt(formatter.format(date));
+            System.out.println("Process ID " + pid + " was in critical section " + criticalSection + " times.");
+            pid += 1; //5001
+            criticalSection = 0;
+            System.out.println("Enter process " + j + " arrival time: ");
+            arrivalTimeInReady[j] = in.nextInt();
             System.out.println("Enter process " + j + " burst time: ");
-            burstTimeCPU[i] = in.nextInt();
+            burstTimeCPU[j] = in.nextInt();
+            kBurst[j] = burstTimeCPU[j];
             j = j + 1; //1
 
             while (scan2.hasNextLine()) {
+
+                processID[j] = pid; //5001
                 String word;
-//                if (scan.hasNext()) {
-//                    word = scan2.next();
-//                }
                 System.out.println("" + scan2.hasNext());
                 word = scan2.next();
+
                 if (word.equals("CALCULATE") || word.equals("I/O")) {
+
                     String number = scan2.next();
                     int numInt = Integer.parseInt(number);
                     arr2[i] = numInt + (int) (getRandomInt(numInt * (-0.9), numInt * (0.9)));
-                }
-            }
-            processID[j] = pid; //5001
-              pid += 1; //5002
 
-            arrivalTimeInReady[j] = Integer.parseInt(formatter.format(date));
+                    if(word.equals("CALCULATE")) {
+                        criticalSection++;
+                        lock.acquire();
+                    }
+                }
+                if(word.equals("Memory:")) {
+
+                    String memoryNum = scan2.next();
+                    System.out.println(memoryNum + "MB of memory has been processed");
+                    memoryNeeded = Integer.parseInt(memoryNum); //90 MB
+                    memoryNeededKB = memoryNeeded * 1000; //90000
+                    framesNeeded = (int) Math.ceil(memoryNeededKB/frameSize); //23
+                    totalFrames = totalFrames - framesNeeded;
+
+                    if(!frameSizeStack.empty() && frameSizeStack.size() >= framesNeeded) { //AVAILABLE SPACE IN MEMORY
+
+                        for(int k = 0; k < framesNeeded; k++) {
+
+                            addFrames.add(frameSizeStack.pop()); //23 frames total
+                        }
+                        framesAssignedWithProcess.add(addFrames);
+                        System.out.println("For process ID " + pid + ", " + addFrames.size() + " frames " +
+                                "were added to memory.");
+                    }
+                    else{
+                        System.out.println("There is no space in memory for Process ID " + pid);
+                    }
+                }
+                lock.release();
+            }
+
+            System.out.println("Process ID " + pid + " was in critical section " + criticalSection + " times.");
+            pid += 1; //5002
+            criticalSection = 0;
+            System.out.println("Enter process " + j + " arrival time: ");
+            arrivalTimeInReady[j] = in.nextInt();
             System.out.println("Enter process " + j + " burst time: ");
             burstTimeCPU[j] = in.nextInt();
+            kBurst[j] = burstTimeCPU[j];
+            flag[i] = 0;
             j = j + 1; //2
 
             while (scan3.hasNextLine()) {
+
+                processID[j] = pid;
                 String word;
-//                if (scan.hasNext()) {
-//                    word = scan3.next();
-//                }
                 System.out.println("" + scan3.hasNext());
                 word = scan3.next();
-                //String word = scan3.next();
+
                 if (word.equals("CALCULATE") || word.equals("I/O")) {
+
                     String number = scan3.next();
                     int numInt = Integer.parseInt(number);
                     arr3[i] = numInt + (int) (getRandomInt(numInt * (-0.8), numInt * (0.8)));
+
+                    if(word.equals("CALCULATE")) {
+                        criticalSection++;
+                        lock.acquire();
+                        lock.release();
+                    }
+
+                }
+
+                if(word.equals("Memory:")) {
+
+                    String memoryNum = scan3.next();
+                    System.out.println(memoryNum + "MB of memory has been processed");
+                    memoryNeeded = Integer.parseInt(memoryNum); //90 MB
+                    memoryNeededKB = memoryNeeded * 1000; //90000
+                    framesNeeded = (int) Math.ceil(memoryNeededKB/frameSize); //23
+                    totalFrames = totalFrames - framesNeeded;
+                    if(!frameSizeStack.empty() && frameSizeStack.size() >= framesNeeded) { //AVAILABLE SPACE IN MEMORY
+
+                        for(int k = 0; k < framesNeeded; k++) {
+
+                            addFrames.add(frameSizeStack.pop()); //23 frames total
+                        }
+                        framesAssignedWithProcess.add(addFrames);
+                        System.out.println("For process ID " + pid + ", " + addFrames.size() + " frames " +
+                                "were added to memory.");
+                    }
+                    else{
+                        System.out.println("There is no space in memory for Process ID " + pid);
+                    }
                 }
             }
-            processID[j] = pid;
-              pid += 1;
 
-            arrivalTimeInReady[j] = Integer.parseInt(formatter.format(date));
+            System.out.println("Process ID " + pid + " was in critical section " + criticalSection + " times.");
+            pid += 1;
+            criticalSection = 0;
+            System.out.println("Enter process " + j + " arrival time: ");
+            arrivalTimeInReady[j] = in.nextInt();
             System.out.println("Enter process " + j + " burst time: ");
             burstTimeCPU[j] = in.nextInt();
-              j = j + 1;
+            kBurst[j] = burstTimeCPU[j];
+            flag[i] = 0;
+            j = j + 1;
+
+
             while (scan4.hasNextLine()) {
+
+                processID[j] = pid; //5003
                 String word;
-//                if (scan.hasNext()) {
-//                    word = scan4.next();
-//                }
                 System.out.println("" + scan4.hasNext());
                 word = scan4.next();
-                //String word = scan4.next();
+
                 if (word.equals("CALCULATE") || word.equals("I/O")) {
+
                     String number = scan4.next();
                     int numInt = Integer.parseInt(number);
                     arr4[i] = numInt + (int) (getRandomInt(numInt * (-0.6), numInt * (0.6)));
+
+                    if(word.equals("CALCULATE")) {
+                        criticalSection++;
+                        lock.acquire();
+                        lock.release();
+                    }
+                }
+
+                if(word.equals("Memory:")) {
+
+                    String memoryNum = scan4.next();
+                    System.out.println(memoryNum + "MB of memory has been processed");
+                    memoryNeeded = Integer.parseInt(memoryNum); //90 MB
+                    memoryNeededKB = memoryNeeded * 1000; //90000
+                    framesNeeded = (int) Math.ceil(memoryNeededKB/frameSize); //23
+                    totalFrames = totalFrames - framesNeeded;
+
+                    if(!frameSizeStack.empty() && frameSizeStack.size() >= framesNeeded) { //AVAILABLE SPACE IN MEMORY
+
+                        for(int k = 0; k < framesNeeded; k++) {
+
+                            addFrames.add(frameSizeStack.pop()); //23 frames total
+                        }
+                        framesAssignedWithProcess.add(addFrames);
+                        System.out.println("For process ID " + pid + ", " + addFrames.size() + " frames " +
+                                "were added to memory.");
+                    }
+                    else{
+                        System.out.println("There is no space in memory for Process ID " + pid);
+                    }
                 }
             }
-            processID[j] = pid; //5003
+
+            System.out.println("Process ID " + pid + " was in critical section " + criticalSection + " times.");
             pid += 1; //5004
-            arrivalTimeInReady[j] = Integer.parseInt(formatter.format(date));
+            criticalSection = 0;
+            System.out.println("Enter process " + j + " arrival time: ");
+            arrivalTimeInReady[j] = in.nextInt();
             System.out.println("enter process " + j + " burst time: ");
             burstTimeCPU[j] = in.nextInt();
-              j = j + 1;
+            kBurst[j] = burstTimeCPU[j];
+            flag[i] = 0;
+            j = j + 1;
         }
-        for(int i = 0; i < arr.length; i++) {
-            if(arr[i] != 0) {
-                System.out.println(arr[i]);
-            }
-        }
+
         in.close();
 
-        for(int i = 0; i < processID.length; i++) {
-            System.out.println("ProcessID is " + processID[i]);
-
-
+        for(int i = 0; i < input*4; i++) {
+            kBurstTimeCPU[i] = burstTimeCPU[i];
         }
 
-        //new ProcessControlBlock();
-        Scheduler.main(input, arrivalTimeInReady, burstTimeCPU, processID, completionTime, turnAroundTimeDuration,
-                waitingTime);
+        SJFScheduler.main(input, arrivalTimeInReady, kBurstTimeCPU, processID, completionTime, turnAroundTimeDuration,
+                waitingTime, kBurst, flag);
+
+        System.out.println();
+        System.out.println();
+        System.out.println("The following shows the processes being processed through Round Robin Scheduler: ");
+        RRScheduler.main(input, processID, burstTimeCPU, waitingTime, turnAroundTimeDuration);
 
     }
 
-    public static double getRandomInt(double min, double max) {
-        double x = (int) (Math.random() * ((max - min) + 1)) + min;
-        return x;
-    }
-
-    static class ProcessControlBlock
-    {
-        public String PCB (int[] arr){
-
-        int pID;
-        int runtime;
-        State processState = State.NEW;
-        int processPointer;
-            return "";
-    }
+    private static double getRandomInt(double min, double max) {
+        double randomInteger = (int) (Math.random() * ((max - min) + 1)) + min;
+        return randomInteger;
     }
 }

@@ -1,3 +1,4 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,9 +22,17 @@ public class OperatingSystems extends Process {
         Scanner scan4 = new Scanner(file4);
         int[] arr4 = new int[10];
 
-        System.out.println("How many processes would you like from each program file? Please enter a value greater than 0.");
-        int input = in.nextInt();
-        Process.main(in, input, scan, arr, scan2, arr2, scan3, arr3, scan4, arr4);
-        //in.close();
+        try {
+            System.out.println("How many processes would you like from each program file? Please enter a value greater than 0.");
+            int input = in.nextInt();
+            if (input > 0) {
+                Process.main(in, input, scan, arr, scan2, arr2, scan3, arr3, scan4, arr4);
+            } else {
+                System.out.println("Number of processes must be greater than 0. Please try again.");
+            }
+        }
+        catch(InputMismatchException e) {
+            System.out.println("Please input a numeric value.");
+        }
     }
 }
