@@ -49,7 +49,6 @@ public class Process extends SJFScheduler {
 
                 processID[j] = pid;
                 String word;
-                System.out.println("" + scan.hasNext());
                 word = scan.next();
 
                 if (word.equals("CALCULATE") || word.equals("I/O")) {
@@ -104,7 +103,6 @@ public class Process extends SJFScheduler {
 
                 processID[j] = pid; //5001
                 String word;
-                System.out.println("" + scan2.hasNext());
                 word = scan2.next();
 
                 if (word.equals("CALCULATE") || word.equals("I/O")) {
@@ -159,7 +157,6 @@ public class Process extends SJFScheduler {
 
                 processID[j] = pid;
                 String word;
-                System.out.println("" + scan3.hasNext());
                 word = scan3.next();
 
                 if (word.equals("CALCULATE") || word.equals("I/O")) {
@@ -216,7 +213,6 @@ public class Process extends SJFScheduler {
 
                 processID[j] = pid; //5003
                 String word;
-                System.out.println("" + scan4.hasNext());
                 word = scan4.next();
 
                 if (word.equals("CALCULATE") || word.equals("I/O")) {
