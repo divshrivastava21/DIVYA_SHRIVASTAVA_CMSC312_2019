@@ -100,7 +100,6 @@ public class MultiThreading3 extends Process implements Runnable {
 
         @Override
         public void run() {
-
         }
     }
 

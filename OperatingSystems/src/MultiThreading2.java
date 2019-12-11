@@ -7,9 +7,6 @@ import java.util.concurrent.Executors;
 
 public class MultiThreading2 extends Process implements Runnable  {
 
-//    private PipedOutputStream pipedOutPut = new PipedOutputStream();
-
-
     public MultiThreading2 (int input, File file, int memoryNeeded, int memoryNeededKB, int framesNeeded, int pagesNeeded,
                             int totalFrames, MutexLock lock, ArrayList<ArrayList<Integer>> framesAssignedWithProcess,
                             int[] arr, Stack<Integer> frameSizeStack, int[] processID, int pid,

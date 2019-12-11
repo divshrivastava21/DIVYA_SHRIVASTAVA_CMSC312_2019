@@ -172,7 +172,6 @@ public class Process extends SJFScheduler {
 
             countingInputForPipes++;
         }
-//        }
 
         in.close();
 
@@ -183,8 +182,6 @@ public class Process extends SJFScheduler {
         System.out.println();
         System.out.println(String.format("Total page faults: %s", getPageFaultsCounter()));
         System.out.println(String.format("Total tlb misses: %s", getTLBCounter()));
-
-//        System.out.println(getReferenceNumber() + " are the following reference numbers");
 
         //Calling Shortest Job First Scheduler
         System.out.println("The following shows the processes being processed through Shortest Job First Scheduler: ");
@@ -198,11 +195,9 @@ public class Process extends SJFScheduler {
         System.out.println("The following shows the processes being processed through Round Robin Scheduler: ");
         RRScheduler.main(input, cycles, processID, burstTimeCPU, waitingTime, turnAroundTimeDuration);
 
-//        javax.swing.SwingUtilities.invokeLater(() -> JTableGUI.createAndShowGUI());
         JFrame frame = new JFrame("OperatingSystemGUI");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTableGUI q = new JTableGUI(processID, arrivalTimeInReady, completionTime, memoryNeededGUI, criticalSection);
-//        JTableGUI.createAndShowGUI();
         q.setOpaque(true); //content panes must be opaque
         frame.setContentPane(q);
         frame.pack();

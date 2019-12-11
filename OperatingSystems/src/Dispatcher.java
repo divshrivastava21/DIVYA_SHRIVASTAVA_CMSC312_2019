@@ -56,8 +56,6 @@ public class Dispatcher implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
 
-//          }
-
                 System.out.println(Dispatcher.thread1.getState());
                 try {
                     Thread.sleep(300);
