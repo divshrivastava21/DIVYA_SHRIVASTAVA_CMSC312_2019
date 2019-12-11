@@ -3,17 +3,17 @@ public class MutexLock {
     private static boolean lockAvailable = true;
 
     public static void acquire() {
-        if(lockAvailable) {
+        if (lockAvailable) {
             lockAvailable = false; //lock is no longer available
 //            System.out.println("Lock has been successfully acquired.");
         }
-        else{
+//        else{
 //            System.out.println("Lock is unavailable; please release first");
-        }
+//        }
     }
 
     public static void release() {
-        if(!lockAvailable) {
+        if (!lockAvailable) {
             lockAvailable = true;
 //            System.out.println("Lock has been successfully released.");
         }

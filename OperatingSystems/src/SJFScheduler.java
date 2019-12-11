@@ -1,8 +1,8 @@
 import java.io.FileNotFoundException;
 
-public class SJFScheduler extends Dispatcher {
+public class SJFScheduler extends Dispatcher{
 
-    public static void main(int input, int[] arrivalTime, int[]burstTime, int[] pid, int[] completionTime,
+    public static void main(int input, int cycles, int[] arrivalTime, int[]burstTime, int[] pid, int[] completionTime,
                             int[]turnAround, int[]waitTime, int[] kBurst, int[] flag) throws FileNotFoundException
     {
 
@@ -13,11 +13,11 @@ public class SJFScheduler extends Dispatcher {
 
         while(true) {
             int min = 99;
-            int c = (input*4);
-            if(total == (input*4))
+            int c = (input*4*cycles);
+            if(total == (input*4*cycles))
                 break;
 
-            for(int i = 0; i < input*4; i++) {
+            for(int i = 0; i < input*4*cycles; i++) {
                 if ((arrivalTime[i]<= currentTime) && (flag[i]==0) && (burstTime[i]<min))
                 {
                     min=burstTime[i];
@@ -25,7 +25,7 @@ public class SJFScheduler extends Dispatcher {
                 }
             }
 
-            if (c == (input*4))
+            if (c == (input*4*cycles))
                 currentTime++;
             else
             {
@@ -40,7 +40,7 @@ public class SJFScheduler extends Dispatcher {
             }
         }
 
-        for(int i = 0; i < input*4; i++) {
+        for(int i = 0; i < input*4*cycles; i++) {
 
             turnAround[i] = completionTime[i] - arrivalTime[i];
             waitTime[i] = turnAround[i] - kBurst[i];
@@ -53,7 +53,7 @@ public class SJFScheduler extends Dispatcher {
         System.out.println("The following shows the process being processed through Shortest Job First Scheduler: ");
         System.out.println("\nProcessID      State    arrivalTime     State     burstTime     State    completionTime   " +
                 " State     " + "turnAroundTime    waitingTime");
-        for(int  i = 0 ; i < input*4;  i++) {
+        for(int  i = 0 ; i < input*4*cycles;  i++) {
             if (pid[i] != 0) {
                 System.out.println(pid[i] + "\t        NEW          " + arrivalTime[i] + "\t        READY        " +
                         kBurst[i] + "\t   " + "     RUNNING         " + completionTime[i] + "\t      TERMINATED         "
@@ -61,7 +61,7 @@ public class SJFScheduler extends Dispatcher {
             }
         }
 
-        System.out.println("The average waiting time is " + (averageWaitingTime/(input*4)));
-        System.out.println("The average turnaround time is " + (averageTurnaroundTime/(input*4)));
+        System.out.println("The average waiting time is " + (averageWaitingTime/(input*4*cycles)));
+        System.out.println("The average turnaround time is " + (averageTurnaroundTime/(input*4*cycles)));
   }
 }

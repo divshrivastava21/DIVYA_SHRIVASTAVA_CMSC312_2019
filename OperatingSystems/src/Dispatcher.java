@@ -1,11 +1,11 @@
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Dispatcher implements Runnable {
     public static Thread thread1;
     public static Dispatcher object;
 
-    public static void main(String[] args) throws FileNotFoundException
-    {
+    public static void main(String[] args) throws FileNotFoundException, InterruptedException, IOException {
         object = new Dispatcher();
         thread1 = new Thread(object);
 
@@ -17,66 +17,53 @@ public class Dispatcher implements Runnable {
         System.out.println("State of thread1 after calling .start() method on it - " +
                 thread1.getState());
     }
+        @Override
+        public void run() {
+            thread myThread = new thread();
+            Thread thread2 = new Thread(myThread);
 
-    @Override
-    public void run() {
-        thread myThread = new thread();
-        Thread thread2 = new Thread(myThread);
+            // thread1 is currently in the NEW state.
+            System.out.println(thread2.getState());
+            thread2.start();
 
-        // thread1 is currently in the NEW state.
-        System.out.println(thread2.getState());
-        thread2.start();
+            // thread2 moved to Runnable state
+            System.out.println(thread2.getState());
 
-        // thread2 moved to Runnable state
-        System.out.println(thread2.getState());
-
-        // moving thread1 to timed waiting state
-        try
-        {
-            //moving thread1 to timed waiting state
-            Thread.sleep(300);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        System.out.println(thread2.getState());
-
-
-        try
-        {
-            // waiting for thread2 to terminate
-            thread2.join();
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-        System.out.println(thread2.getState());
-    }
-
-    class thread implements Runnable
-    {
-        public void run()
-        {
-            // moving thread2 to timed waiting state
-            try
-            {
-                Thread.sleep(1500);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-
-            System.out.println(Dispatcher.thread1.getState());
-            try
-            {
+            // moving thread1 to timed waiting state
+            try {
+                //moving thread1 to timed waiting state
                 Thread.sleep(300);
-            }
-            catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+            System.out.println(thread2.getState());
+
+
+            try {
+                // waiting for thread2 to terminate
+                thread2.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(thread2.getState());
+        }
+
+        class thread implements Runnable {
+            public void run() {
+                // moving thread2 to timed waiting state
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+
+//          }
+
+                System.out.println(Dispatcher.thread1.getState());
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ex) {
+                    e.printStackTrace();
+                }
             }
         }
     }
